@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Admin = signed in with email (not phone)
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email != null;
+    }
+
+    // Customer = signed in with phone OTP
+    function isCustomer() {
+      return request.auth != null && request.auth.token.phone_number != null;
+    }
+
+    match /users/{userId} {
+      allow read, write: if isAdmin();
+      allow read, write: if isCustomer() && request.auth.uid == userId;
+    }
+
+    match /bookings/{bookingId} {
+      allow read, write: if isAdmin();
+      allow create: if isCustomer();
+      allow read: if isCustomer() && resource.data.uid == request.auth.uid;
+    }
+  }
+}
