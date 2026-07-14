@@ -90,13 +90,6 @@ export default function BookingConfirmationPage() {
           </div>
         </div>
 
-        {/* Restaurant note */}
-        <div style={{ background: 'var(--info-bg)', border: '1px solid rgba(37,99,235,0.15)', borderRadius: 'var(--r-lg)', padding: '14px 16px', marginBottom: 24 }}>
-          <p style={{ fontSize: 13, color: 'var(--info)', lineHeight: 1.55 }}>
-            📩 The restaurant will confirm your reservation shortly via phone.
-          </p>
-        </div>
-
         <button className="btn btn-primary" onClick={() => navigate('/home', { replace: true })} style={{ marginBottom: 12 }}>
           Back to Home
         </button>

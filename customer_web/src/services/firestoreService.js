@@ -17,3 +17,13 @@ export function getUserBookings(uid) {
   const bookings = JSON.parse(localStorage.getItem('rgh_bookings') || '[]');
   return Promise.resolve(bookings.filter((b) => b.uid === uid));
 }
+
+export function markBookingAsArrived(bookingId) {
+  const bookings = JSON.parse(localStorage.getItem('rgh_bookings') || '[]');
+  const idx = bookings.findIndex((b) => b.bookingId === bookingId);
+  if (idx !== -1) {
+    bookings[idx] = { ...bookings[idx], bookingStatus: 'arrived', arrivedAt: new Date().toISOString() };
+    localStorage.setItem('rgh_bookings', JSON.stringify(bookings));
+  }
+  return Promise.resolve();
+}

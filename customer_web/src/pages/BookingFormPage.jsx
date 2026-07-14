@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { showToast } from '../components/Toast';
 import { createBooking } from '../services/firestoreService';
+import ArrivedConfirmationModal from '../components/ArrivedConfirmationModal';
 
 const toInput = (d) => d.toISOString().split('T')[0];
 const fmtDate = (s) => new Date(s + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -13,6 +14,9 @@ export default function BookingFormPage() {
   const [mobile, setMobile] = useState('');
   const [notes, setNotes] = useState('');
   const [errors, setErrors] = useState({});
+  const [showModal, setShowModal] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [pendingBooking, setPendingBooking] = useState(null);
 
   const validate = () => {
     const e = {};
@@ -34,11 +38,20 @@ export default function BookingFormPage() {
       // No date/time for demo
     };
 
+    setPendingBooking(booking);
+    setShowModal(true);
+  };
+
+  const handleModalConfirm = async () => {
+    setSubmitting(true);
     try {
-      const bookingId = await createBooking(booking);
-      navigate('/confirmation', { state: { bookingId, booking } });
+      const bookingId = await createBooking(pendingBooking);
+      setShowModal(false);
+      setSubmitting(false);
+      navigate('/confirmation', { state: { bookingId, booking: pendingBooking } });
     } catch (err) {
       showToast('Failed to create booking', 'error');
+      setSubmitting(false);
     }
   };
 
@@ -123,6 +136,18 @@ export default function BookingFormPage() {
           Confirm Reservation
         </button>
       </form>
+
+      {/* Arrival acknowledgment modal */}
+      <ArrivedConfirmationModal
+        isOpen={showModal}
+        bookingId={pendingBooking?.bookingId || 'Your Booking'}
+        onConfirm={handleModalConfirm}
+        onCancel={() => {
+          setShowModal(false);
+          setPendingBooking(null);
+        }}
+        isLoading={submitting}
+      />
     </div>
   );
 }
